@@ -5,24 +5,10 @@
             v-on:groupselect="groupChanged" />
     <div v-if="!isNaN(selectedGroup)">
       <Filters />
-      <div v-for="day of timetable.days"
-           v-bind:key="day.day">
-        {{ day.day }}
-        <table>
-          <tr v-for="lesson of day.lessons"
-              v-bind:key="lesson.number">
-            <div v-if="lesson.info.length > 0">
-              <td>{{ lesson.number }}</td>
-              <td>{{ lesson.start }} - {{ lesson.end }}</td>
-              <td>{{ lesson.info[0].name }}</td>
-              <td>{{ lesson.info[0].cabinet }}</td>
-            </div>
-          </tr>
-        </table>
-
-      </div>
+      <Timetable v-bind:list="timetable.days" />
     </div>
     <div v-else>
+      Группа не выбрана
     </div>
   </div>
 </template>
@@ -30,6 +16,7 @@
 <script>
 import Header from './components/Header'
 import Filters from './components/Filters'
+import Timetable from './components/Timetable'
 
 const API_URL = 'http://localhost:9000'
 
@@ -37,7 +24,8 @@ export default {
   name: 'App',
   components: {
     Header,
-    Filters
+    Filters,
+    Timetable
   },
   data: () => ({
     groups: {},
@@ -52,13 +40,13 @@ export default {
 
     // Fetch groups from API
     fetch(`${API_URL}/api/groups`, { method: 'GET' })
-    .then(resp => {
-      if (resp.status === 200) {
-        return resp.json()
-      }
-    })
-    .then(data => vm.groups = data)
-    .catch(err => console.log(err))
+      .then(resp => {
+        if (resp.status === 200) {
+          return resp.json()
+        }
+      })
+      .then(data => vm.groups = data)
+      .catch(err => console.log(err))
 
     vm.loadTimetable()
   },
@@ -66,6 +54,7 @@ export default {
     // Событие изменения группы
     groupChanged(group) {
       localStorage.setItem('selectedgroup', group)
+      this.selectedGroup = group
     },
 
     loadTimetable() {
@@ -78,13 +67,13 @@ export default {
           params.set('week', vm.selectedWeek.toString())
 
         fetch(`${API_URL}/api/timetable?${params.toString()}`, { method: 'GET' })
-            .then(resp => {
-              if (resp.status === 200) {
-                return resp.json()
-              }
-            })
-            .then(data => vm.timetable = data)
-            .catch(err => console.log(err))
+          .then(resp => {
+            if (resp.status === 200) {
+              return resp.json()
+            }
+          })
+          .then(data => vm.timetable = data)
+          .catch(err => console.log(err))
       }
     }
   }
