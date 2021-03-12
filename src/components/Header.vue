@@ -1,19 +1,24 @@
 <template>
   <header>
-    <h2>Расписание</h2>
+    <div>
+      <h2>Расписание</h2>
 
-    <select v-on:change="selectGroup">
-      <option selected hidden>Группа</option>
-      <optgroup v-for="courseGroups of groups"
-                v-bind:key="courseGroups.course"
-                v-bind:label="`${courseGroups.course} курс`">
-        <option v-for="group of courseGroups.groups"
-                v-bind:key="group.id" v-bind:value="group.id"
-                v-bind:selected="parseInt(group.id, 10) === selectedGroup">
-          {{ group.name }}
-        </option>
-      </optgroup>
-    </select>
+      <select aria-label="Выбор группы" v-on:change="selectGroup">
+        <option selected hidden>Группа</option>
+        <optgroup v-for="courseGroups of groups"
+                  v-bind:key="courseGroups.course"
+                  v-bind:label="`${courseGroups.course} курс`">
+          <option v-for="group of courseGroups.groups"
+                  v-bind:key="group.id" v-bind:value="group.id"
+                  v-bind:selected="group.id === selectedGroup">
+            {{ group.name }}
+          </option>
+        </optgroup>
+      </select>
+    </div>
+    <div>
+      <button aria-label="Обновления" class="header-btn"><img class="header-btn-img" src="../assets/notification.svg" alt="Уведомления"></button>
+    </div>
   </header>
 </template>
 
@@ -35,7 +40,12 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+
+h2 {
+  background-color: #2c3e50;
+}
+
 header {
   width: calc(100vw - 40px);
   height: 50px;
@@ -44,6 +54,12 @@ header {
   padding: 0 20px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
+  div {
+    display: inline-flex;
+    background-color: #2c3e50;
+  }
 }
 
 select {
@@ -63,6 +79,25 @@ select {
   &:focus {
     background-color: #2c5e50;
   }
+}
+
+.header-btn {
+  outline: none;
+  border: none;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #394f69;
+  }
+}
+
+.header-btn-img {
+  width: 16px;
+  height: 16px;
+  fill: whitesmoke;
 }
 
 option {

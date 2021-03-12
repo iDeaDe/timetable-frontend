@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: "Filters"
+  name: 'Filters'
 }
 </script>
 
