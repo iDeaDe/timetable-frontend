@@ -16,6 +16,10 @@ export default {
 
 <style lang="scss">
 
+.loader-container {
+  transition: visibility .3s;
+}
+
 // from loading.io
 .lds-dual-ring {
   display: flex;

@@ -4,7 +4,7 @@
       <h2>Расписание</h2>
 
       <select aria-label="Выбор группы" v-on:change="selectGroup">
-        <option selected hidden>Группа</option>
+        <option selected hidden>Выбор группы</option>
         <optgroup v-for="courseGroups of groups"
                   v-bind:key="courseGroups.course"
                   v-bind:label="`${courseGroups.course} курс`">
@@ -15,9 +15,12 @@
           </option>
         </optgroup>
       </select>
+
+      <button class="header-btn header-btn-nav" v-on:click="changeWeek(-1)">&lt;</button>
+      <button class="header-btn header-btn-nav" v-on:click="changeWeek(1)">&gt;</button>
     </div>
     <div>
-      <button aria-label="Обновления" class="header-btn"><img class="header-btn-img" src="../assets/notification.svg" alt="Уведомления"></button>
+      <!--<button aria-label="Обновления" class="header-btn"><img class="header-btn-img" src="../assets/notification.svg" alt="Уведомления"></button>-->
     </div>
   </header>
 </template>
@@ -32,10 +35,10 @@ export default {
   methods: {
     selectGroup(event) {
       this.$emit('groupselect', event.target.value)
-    }/*,
-    changeWeek() {
-      this.$emit('weekchange',)
-    }*/
+    },
+    changeWeek(week) {
+      this.$emit('weekchange', week)
+    }
   }
 }
 </script>
@@ -83,15 +86,22 @@ select {
 
 .header-btn {
   outline: none;
-  border: none;
+  border: 1px solid #354b60;
+  border-radius: 4px;
   width: 30px;
   height: 30px;
   cursor: pointer;
-  border-radius: 4px;
+  color: whitesmoke;
+  font-weight: bold;
+  margin: 0 5px;
 
   &:hover {
     background-color: #394f69;
   }
+}
+
+.header-btn-nav {
+  color: #ccc;
 }
 
 .header-btn-img {

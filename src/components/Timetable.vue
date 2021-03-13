@@ -28,7 +28,7 @@
               </td>
               <td class="lesson-name"
                   v-bind:class="info.canceled ? 'lesson-canceled' : ''">
-                {{ info.name }}<span class="lesson-teacher">({{ info.teacher }})</span>
+                {{ info.name }}<span class="lesson-teacher" v-if="info.teacher !== ''">({{ info.teacher }})</span>
               </td>
               <td class="lesson-cabinet"
                   v-bind:class="info.canceled ? 'lesson-canceled' : ''">{{ info.cabinet }}</td>
