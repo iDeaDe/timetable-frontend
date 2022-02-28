@@ -1,12 +1,12 @@
 <template>
   <div id="app">
-    <Loader v-if="isLoaderVisible" v-bind:loader-text="loaderText" />
-    <Header v-bind:groups="groups.courses"
-            v-bind:selected-group="selectedGroup"
-            v-on:groupselect="groupChanged"
-            v-on:weekchange="weekChanged" />
+    <Loader v-if="isLoaderVisible" v-bind:loader-text="loaderText"/>
+    <Header :groups="groups.courses"
+            :selected-group="selectedGroup"
+            @group-select="groupChanged"
+            @week-change="weekChanged"/>
     <div v-if="!isNaN(selectedGroup)">
-      <Timetable v-bind:list="timetable.days" />
+      <Timetable :list="timetable.days"/>
     </div>
     <div class="start-screen" v-else>
       Группа не выбрана
@@ -14,131 +14,117 @@
   </div>
 </template>
 
-<script>
-import axios from 'axios'
+<script setup lang="ts">
 
-import Loader from './components/Loader'
-import Header from './components/Header'
+import { ref } from 'vue';
+import axios from 'axios';
+
+import Loader from './components/Loader.vue';
+import Header from './components/Header.vue';
 //import Filters from './components/Filters'
-import Timetable from './components/Timetable'
+import Timetable from './components/Timetable.vue';
 
-const API_URL = 'https://timetable.ashutov.rocks'
+const API_URL = 'https://timetable.ashutov.rocks';
 
-export default {
-  name: 'App',
-  components: {
-    Loader,
-    Header,
-    //Filters,
-    Timetable
-  },
-  data: () => ({
-    groups: {},
-    timetable: {},
-    selectedGroup: 0,
-    selectedWeek: 0,
-    // Лоадер
-    loaderText: '',
-    isLoaderVisible: true,
-    // Проверка загрузки данных
-    dataLoad: {
-      groups: false,
-      timetable: false
+const showLoader = () => {
+  isLoaderVisible.value = true;
+
+  let interval = setInterval(() => {
+    loaderText.value = 'Загрузка ';
+
+    if (dataLoad.value.groups && dataLoad.value.timetable) {
+      isLoaderVisible.value = false;
+      clearInterval(interval);
     }
-  }),
-  created() {
-    let vm = this
 
-    vm.selectedGroup = parseInt(localStorage.getItem('selectedgroup'), 10)
-    if (window.location.search !== '') {
-      let group = parseInt((new URLSearchParams(window.location.search)).get('group'), 10)
-      if (!isNaN(group))
-        vm.selectedGroup = group
-    }
-    else if (!isNaN(vm.selectedGroup))
-      window.history.replaceState(
-        { group: vm.selectedGroup },
-        'Расписание',
-        `/?group=${vm.selectedGroup}`
-      )
-
-    // Load groups from API
-    axios.get(`${API_URL}/api/groups`, { responseType: 'json' })
-      .then(resp => {
-        if (resp.status === 200)
-          vm.groups = resp.data
-          vm.dataLoad.groups = true
-      })
-      .catch(err => console.log(err.toJSON()))
-
-    vm.loadTimetable()
-  },
-  methods: {
-    showLoader() {
-      let vm = this
-      vm.isLoaderVisible = true
-
-      let interval = setInterval(() => {
-        vm.loaderText = 'Загрузка '
-
-        if (vm.dataLoad.groups && vm.dataLoad.timetable) {
-          vm.isLoaderVisible = false
-          clearInterval(interval)
-        }
-
-        if (vm.dataLoad.groups && !vm.dataLoad.timetable)
-          vm.loaderText += 'расписания'
-        else if (!vm.dataLoad.groups && vm.dataLoad.timetable)
-          vm.loaderText += 'групп'
-        else
-          vm.loaderText += 'данных'
-      }, 100)
-    },
-
-    // Событие изменения группы
-    groupChanged(group) {
-      localStorage.setItem('selectedgroup', group)
-      this.selectedGroup = parseInt(group, 10)
-      this.selectedWeek = 0
-      this.loadTimetable()
-      window.history.pushState(
-        { group: group },
-        'Расписание',
-        `/?group=${group}`
-      )
-    },
-
-    weekChanged(week) {
-      this.selectedWeek += week
-      this.loadTimetable()
-    },
-
-    loadTimetable() {
-      let vm = this
-      vm.dataLoad.timetable = false
-      vm.showLoader()
-
-      if (!isNaN(vm.selectedGroup)) {
-        let params = new URLSearchParams()
-        params.set('group', vm.selectedGroup.toString())
-        if (!isNaN(vm.selectedWeek))
-          params.set('week', vm.selectedWeek.toString())
-
-        axios.get(`${API_URL}/api/timetable?${params.toString()}`, { responseType: 'json' })
-          .then(resp => {
-            if (resp.status === 200) {
-              vm.timetable = resp.data
-              vm.dataLoad.timetable = true
-              vm.selectedWeek = vm.timetable.week
-            }
-          })
-          .catch(err => console.log(err.toJSON()))
-      }
-      else
-        vm.dataLoad.timetable = true
-    }
-  }
+    if (dataLoad.value.groups && !dataLoad.value.timetable)
+      loaderText.value += 'расписания';
+    else if (!dataLoad.value.groups && dataLoad.value.timetable)
+      loaderText.value += 'групп';
+    else
+      loaderText.value += 'данных';
+  }, 100);
 }
+
+// Событие изменения группы
+const groupChanged = (group: any) => {
+  localStorage.setItem('selectedgroup', group);
+  selectedGroup.value = parseInt(group, 10);
+  selectedWeek.value = 0;
+  loadTimetable();
+  window.history.pushState(
+      { group: group },
+      'Расписание',
+      `/?group=${ group }`
+  );
+}
+
+const weekChanged = (week: any) => {
+  selectedWeek.value += week;
+  loadTimetable();
+}
+
+const loadTimetable = () => {
+  dataLoad.value.timetable = false;
+  showLoader();
+
+  if (!isNaN(selectedGroup.value)) {
+    let params = new URLSearchParams();
+    params.set('group', selectedGroup.value.toString());
+    if (!isNaN(selectedWeek.value)) {
+      params.set('week', selectedWeek.value.toString());
+    }
+
+    axios.get(`${ API_URL }/api/timetable?${ params.toString() }`, { responseType: 'json' })
+        .then(resp => {
+          if (resp.status === 200) {
+            timetable.value = resp.data;
+            dataLoad.value.timetable = true;
+            // @ts-ignore
+            selectedWeek.value = timetable.value.week;
+          }
+        })
+        .catch(err => console.log(err.toJSON()));
+  } else
+    dataLoad.value.timetable = true;
+}
+
+const groups = ref({});
+const timetable = ref({});
+const selectedGroup = ref(0);
+const selectedWeek = ref(0);
+
+const loaderText = ref('');
+const isLoaderVisible = ref(true);
+const dataLoad = ref({
+  groups: false,
+  timetable: false
+});
+
+selectedGroup.value = parseInt(localStorage.getItem('selectedgroup') || '', 10);
+if (window.location.search !== '') {
+  let group = parseInt((new URLSearchParams(window.location.search)).get('group') || '', 10);
+  if (!isNaN(group)) {
+    selectedGroup.value = group;
+  }
+} else if (!isNaN(selectedGroup.value)) {
+  window.history.replaceState(
+      { group: selectedGroup.value },
+      'Расписание',
+      `/?group=${ selectedGroup.value }`
+  );
+}
+
+// Load groups from API
+axios.get(`${ API_URL }/api/groups`, { responseType: 'json' })
+    .then(resp => {
+      if (resp.status === 200)
+        groups.value = resp.data;
+      dataLoad.value.groups = true;
+    })
+    .catch(err => console.log(err.toJSON()));
+
+loadTimetable();
 </script>
 
 <style lang="scss">

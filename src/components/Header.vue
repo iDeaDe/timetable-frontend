@@ -25,22 +25,21 @@
   </header>
 </template>
 
-<script>
-export default {
-  name: 'Header',
-  props: {
-    selectedGroup: Number,
-    groups: Array
-  },
-  methods: {
-    selectGroup(event) {
-      this.$emit('groupselect', event.target.value)
-    },
-    changeWeek(week) {
-      this.$emit('weekchange', week)
-    }
-  }
-}
+<script setup lang="ts">
+
+const emit = defineEmits([
+    'group-select',
+    'week-change'
+]);
+
+defineProps<{
+  selectedGroup: number,
+  groups?: Array<Record<string, unknown>>
+}>();
+
+const selectGroup = (event: Event) => emit('group-select', event.target!.value);
+const changeWeek = (week: number) => emit('week-change', week);
+
 </script>
 
 <style lang="scss">

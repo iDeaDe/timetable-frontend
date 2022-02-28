@@ -40,23 +40,16 @@
   </main>
 </template>
 
-<script>
-import { chunk } from 'lodash'
+<script setup lang="ts">
+import { chunk } from 'lodash';
+import { computed, ref } from 'vue';
 
-export default {
-  name: 'Timetable',
-  props: {
-    list: Array
-  },
-  data: () => ({
-     listChunked: []
-  }),
-  computed: {
-    chunkedList() {
-      return chunk(this.list, 3)
-    }
-  }
-}
+const props = defineProps<{
+  list?: Array<Record<string, unknown>>
+}>();
+
+const chunkedList = computed(() => chunk(props.list, 3));
+
 </script>
 
 <style lang="scss">

@@ -5,13 +5,12 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Loader',
-  props: {
-    loaderText: String
-  }
-}
+<script setup lang="ts">
+
+defineProps<{
+  loaderText: string
+}>();
+
 </script>
 
 <style lang="scss">
