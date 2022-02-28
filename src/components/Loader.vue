@@ -24,8 +24,8 @@ defineProps<{
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 20vw;
-  height: 20vw;
+  width: 20vh;
+  height: 20vh;
 }
 .lds-dual-ring:after {
   content: " ";
@@ -52,7 +52,7 @@ defineProps<{
   position: absolute;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(44, 62, 80, .6);
+  background-color: rgba(44, 62, 80, .8);
   display: flex;
   justify-content: center;
   align-items: center;

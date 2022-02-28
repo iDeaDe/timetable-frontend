@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <Loader v-if="isLoaderVisible" v-bind:loader-text="loaderText"/>
+    <Loader v-if="isLoaderVisible" :loader-text="loaderText"/>
     <Header :groups="groups.courses"
-            :selected-group="selectedGroup"
+            :selectedGroup="selectedGroup"
             @group-select="groupChanged"
             @week-change="weekChanged"/>
     <div v-if="!isNaN(selectedGroup)">
@@ -21,8 +21,9 @@ import axios from 'axios';
 
 import Loader from './components/Loader.vue';
 import Header from './components/Header.vue';
-//import Filters from './components/Filters'
 import Timetable from './components/Timetable.vue';
+import { TimetableInterface } from './lib/timetable/TimetableInterface';
+import { GroupsInterface } from './lib/groups/GroupsInterface';
 
 const API_URL = 'https://timetable.ashutov.rocks';
 
@@ -89,8 +90,8 @@ const loadTimetable = () => {
     dataLoad.value.timetable = true;
 }
 
-const groups = ref({});
-const timetable = ref({});
+const groups = ref({} as GroupsInterface);
+const timetable = ref({} as TimetableInterface);
 const selectedGroup = ref(0);
 const selectedWeek = ref(0);
 

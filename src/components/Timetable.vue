@@ -2,18 +2,18 @@
   <main>
     <div class="timetable-container"
          v-for="chunk of chunkedList"
-         v-bind:key="chunk[0].day">
+         :key="chunk[0].day">
       <div class="day-block"
            v-for="day of chunk"
-           v-bind:key="day.day">
+           :key="day.day">
         <div class="day-title">{{ day.day }}</div>
         <table class="day-table">
           <tbody class="lesson-info"
                  v-for="lesson of day.lessons"
-                 v-bind:key="lesson.number">
+                 :key="lesson.number">
             <tr class="day-row"
                 v-for="(info, index) in lesson.info"
-                v-bind:key="Math.random() + info.cabinet">
+                :key="Math.random() + info.cabinet">
 
               <td class="lesson-number">
                 <span v-if="index === 0 || lesson.info.length === 1">
@@ -27,11 +27,11 @@
                 </span>
               </td>
               <td class="lesson-name"
-                  v-bind:class="info.canceled ? 'lesson-canceled' : ''">
+                  :class="info.canceled ? 'lesson-canceled' : ''">
                 {{ info.name }}<span class="lesson-teacher" v-if="info.teacher !== ''">({{ info.teacher }})</span>
               </td>
               <td class="lesson-cabinet"
-                  v-bind:class="info.canceled ? 'lesson-canceled' : ''">{{ info.cabinet }}</td>
+                  :class="info.canceled ? 'lesson-canceled' : ''">{{ info.cabinet }}</td>
             </tr>
           </tbody>
         </table>
@@ -42,13 +42,14 @@
 
 <script setup lang="ts">
 import { chunk } from 'lodash';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
+import { WeekDayInterface } from '../lib/timetable/TimetableInterface';
 
 const props = defineProps<{
-  list?: Array<Record<string, unknown>>
+  list?: Array<WeekDayInterface>
 }>();
 
-const chunkedList = computed(() => chunk(props.list, 3));
+const chunkedList = computed(() => chunk(props.list, 3) as Array<Array<WeekDayInterface>>);
 
 </script>
 

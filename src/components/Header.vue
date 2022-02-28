@@ -6,11 +6,11 @@
       <select aria-label="Выбор группы" v-on:change="selectGroup">
         <option selected hidden>Выбор группы</option>
         <optgroup v-for="courseGroups of groups"
-                  v-bind:key="courseGroups.course"
-                  v-bind:label="`${courseGroups.course} курс`">
+                  :key="courseGroups.course"
+                  :label="`${courseGroups.course} курс`">
           <option v-for="group of courseGroups.groups"
-                  v-bind:key="group.id" v-bind:value="group.id"
-                  v-bind:selected="group.id === selectedGroup">
+                  :key="group.id" :value="group.id"
+                  :selected="group.id === selectedGroup">
             {{ group.name }}
           </option>
         </optgroup>
@@ -20,12 +20,13 @@
       <button class="header-btn header-btn-nav" v-on:click="changeWeek(1)">&gt;</button>
     </div>
     <div>
-      <!--<button aria-label="Обновления" class="header-btn"><img class="header-btn-img" src="../assets/notification.svg" alt="Уведомления"></button>-->
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+
+import { CourseInterface } from '../lib/groups/GroupsInterface';
 
 const emit = defineEmits([
     'group-select',
@@ -34,10 +35,10 @@ const emit = defineEmits([
 
 defineProps<{
   selectedGroup: number,
-  groups?: Array<Record<string, unknown>>
+  groups?: Array<CourseInterface>
 }>();
 
-const selectGroup = (event: Event) => emit('group-select', event.target!.value);
+const selectGroup = (event: Event) => emit('group-select', (<HTMLInputElement>event.target).value);
 const changeWeek = (week: number) => emit('week-change', week);
 
 </script>
