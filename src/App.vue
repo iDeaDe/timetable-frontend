@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Loader v-if="isLoaderVisible" :loader-text="loaderText"/>
+    <Loader v-show="loader.isLoading" :loader-text="'Загрузка данных'"/>
     <Header :groups="groups.courses"
             :selectedGroup="selectedGroup"
             @group-select="groupChanged"
@@ -24,28 +24,25 @@ import Header from './components/Header.vue';
 import Timetable from './components/Timetable.vue';
 import { TimetableInterface } from './lib/timetable/TimetableInterface';
 import { GroupsInterface } from './lib/groups/GroupsInterface';
+import { DataLoader } from "./lib/data/DataLoader";
 
-const API_URL = 'https://timetable.ashutov.rocks';
+const API_URL = 'https://api.timetable.ashutov.rocks/api';
 
-const showLoader = () => {
-  isLoaderVisible.value = true;
-
-  let interval = setInterval(() => {
-    loaderText.value = 'Загрузка ';
-
-    if (dataLoad.value.groups && dataLoad.value.timetable) {
-      isLoaderVisible.value = false;
-      clearInterval(interval);
-    }
-
-    if (dataLoad.value.groups && !dataLoad.value.timetable)
-      loaderText.value += 'расписания';
-    else if (!dataLoad.value.groups && dataLoad.value.timetable)
-      loaderText.value += 'групп';
-    else
-      loaderText.value += 'данных';
-  }, 100);
-}
+const loader = ref(new DataLoader(
+    API_URL,
+    [
+      {
+        name: 'groups',
+        address: '/groups',
+        data: {}
+      },
+      {
+        name: 'timetable',
+        address: '/timetable',
+        data: {}
+      }
+    ]
+));
 
 // Событие изменения группы
 const groupChanged = (group: any) => {
@@ -66,41 +63,27 @@ const weekChanged = (week: any) => {
 }
 
 const loadTimetable = () => {
-  dataLoad.value.timetable = false;
-  showLoader();
-
   if (!isNaN(selectedGroup.value)) {
-    let params = new URLSearchParams();
-    params.set('group', selectedGroup.value.toString());
+    let params = {
+      group: selectedGroup.value.toString()
+    } as Record<string, string>;
     if (!isNaN(selectedWeek.value)) {
-      params.set('week', selectedWeek.value.toString());
+      params.week = selectedWeek.value.toString();
     }
 
-    axios.get(`${ API_URL }/api/timetable?${ params.toString() }`, { responseType: 'json' })
-        .then(resp => {
-          if (resp.status === 200) {
-            timetable.value = resp.data;
-            dataLoad.value.timetable = true;
-            // @ts-ignore
-            selectedWeek.value = timetable.value.week;
-          }
-        })
-        .catch(err => console.log(err.toJSON()));
-  } else
-    dataLoad.value.timetable = true;
+    loader.value
+      .load('timetable', params)
+      .then(() => {
+        timetable.value = loader.value.getData('timetable') as TimetableInterface;
+        selectedWeek.value = timetable.value.week;
+      });
+  }
 }
 
 const groups = ref({} as GroupsInterface);
 const timetable = ref({} as TimetableInterface);
 const selectedGroup = ref(0);
 const selectedWeek = ref(0);
-
-const loaderText = ref('');
-const isLoaderVisible = ref(true);
-const dataLoad = ref({
-  groups: false,
-  timetable: false
-});
 
 selectedGroup.value = parseInt(localStorage.getItem('selectedgroup') || '', 10);
 if (window.location.search !== '') {
@@ -116,16 +99,13 @@ if (window.location.search !== '') {
   );
 }
 
-// Load groups from API
-axios.get(`${ API_URL }/api/groups`, { responseType: 'json' })
-    .then(resp => {
-      if (resp.status === 200)
-        groups.value = resp.data;
-      dataLoad.value.groups = true;
-    })
-    .catch(err => console.log(err.toJSON()));
+loader.value
+  .load('groups')
+  .then(() => {
+    groups.value = loader.value.getData('groups') as GroupsInterface;
 
-loadTimetable();
+    loadTimetable();
+  });
 </script>
 
 <style lang="scss">

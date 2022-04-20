@@ -61,5 +61,6 @@ defineProps<{
 
 .loader-title {
   color: white;
+  user-select: none;
 }
 </style>

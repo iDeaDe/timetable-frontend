@@ -1,7 +1,8 @@
 <template>
   <header>
     <div>
-      <h2>Расписание</h2>
+      <img class="header-logo" src="/favicon_white.png" alt="Logo">
+      <h2 class="header-title">Расписание</h2>
 
       <select aria-label="Выбор группы" v-on:change="selectGroup">
         <option selected hidden>Выбор группы</option>
@@ -62,7 +63,14 @@ header {
   div {
     display: inline-flex;
     background-color: #2c3e50;
+    align-items: center;
   }
+}
+
+.header-logo {
+  display: none;
+  width: 24px;
+  height: 24px;
 }
 
 select {
@@ -112,5 +120,15 @@ select {
 
 option {
   cursor: pointer;
+}
+
+@media screen and (max-width: 410px) {
+  .header-title {
+    display: none;
+  }
+
+  .header-logo {
+    display: block;
+  }
 }
 </style>
