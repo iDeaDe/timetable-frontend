@@ -26,7 +26,7 @@ import { TimetableInterface } from './lib/timetable/TimetableInterface';
 import { GroupsInterface } from './lib/groups/GroupsInterface';
 import { DataLoader } from "./lib/data/DataLoader";
 
-const API_URL = 'https://api.timetable.ashutov.rocks/api';
+const API_URL = 'https://api.ashutov.rocks/timetable';
 
 const loader = ref(new DataLoader(
     API_URL,
